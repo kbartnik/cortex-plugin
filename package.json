@@ -1,0 +1,33 @@
+{
+  "name": "cortex-plugin",
+  "version": "1.0.0",
+  "description": "Executive function assistant for developers using Obsidian.",
+  "author": "Kurt Bartnik",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/main.js",
+  "keywords": [
+    "obsidian",
+    "plugin",
+    "vite"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/cortex-plugin"
+  },
+  "scripts": {
+    "build": "vite build && tsx scripts/copy-manifest.ts",
+    "dev": "vite build --watch"
+  },
+  "dependencies": {
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.17",
+    "colorette": "^2.0.20",
+    "obsidian": "^1.8.7",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  }
+}
