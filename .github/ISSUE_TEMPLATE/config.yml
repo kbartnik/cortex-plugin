@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+contact_links: []
+issue_templates:
+  - name: User Story
+    description: Create a user story with acceptance criteria and BDD scenarios
+    title: "story(scope): user goal"
+    labels: ["story"]
+    assignees: []
+    body: .github/ISSUE_TEMPLATE/user_story_template.md
