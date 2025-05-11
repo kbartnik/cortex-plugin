@@ -1,0 +1,81 @@
+name: User Story
+description: Create a new user story with acceptance criteria and BDD scenarios
+title: "story(scope): user goal"
+labels: ["story"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## User Story
+        Please complete the structured story, then fill out the acceptance criteria and optional BDD section below.
+
+  - type: input
+    id: user_role
+    attributes:
+      label: User Role
+      description: Who is the user this story applies to?
+      placeholder: e.g., developer, analyst, tester
+    validations:
+      required: true
+
+  - type: input
+    id: user_goal
+    attributes:
+      label: Goal
+      description: What is the user trying to accomplish?
+      placeholder: e.g., trigger a log entry manually
+    validations:
+      required: true
+
+  - type: input
+    id: user_benefit
+    attributes:
+      label: Benefit
+      description: Why is this goal important to the user?
+      placeholder: e.g., so that I can record my progress quickly
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Expand on the context or rationale for this story
+      placeholder: e.g., This story helps reduce friction in capturing developer activity...
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: List specific conditions that must be met for this story to be complete
+      placeholder: |
+        - [ ] The file is created if it doesn't exist
+        - [ ] Entry is timestamped
+        - [ ] It appears under the correct section
+    validations:
+      required: true
+
+  - type: textarea
+    id: bdd
+    attributes:
+      label: BDD Scenarios (optional)
+      description: Add Given/When/Then behavior-driven tests if needed
+      placeholder: |
+        Scenario: Logging a basic entry
+          Given the file exists
+          When I enter a new log
+          Then it should be timestamped and appended
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes / Technical Considerations
+      description: Any implementation hints, links, or context
+      placeholder: e.g., Hook this to the command palette; check for existing section...
+    validations:
+      required: false
