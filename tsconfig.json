@@ -4,9 +4,19 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "strict": true,
-    "baseUrl": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@utils/*": ["src/utils/*"],
+      "@commands/*": ["src/commands/*"],
+      "@services/*": ["src/services/*"],
+      "@config/*": ["src/config/*"],
+      "@adapters/*": ["src/adapters/*"],
+      "@types/*": ["src/types/*"],
+    },
     "outDir": "dist",
-    "noEmit": true
+    "noEmit": true,
   },
-  "include": ["src"]
+  "include": ["src", "test"]
 }

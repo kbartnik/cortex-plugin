@@ -1,35 +1,60 @@
-/****
- * Vite configuration for building the Obsidian Cortex plugin.
- * Outputs a CommonJS-compatible `main.js` bundle in `dist/` for Obsidian to load.
+/**
+ * Vite configuration file for the Cortex plugin.
+ *
+ * This configuration supports:
+ * - Plugin bundling with Vite and Rollup
+ * - Module resolution aliases for cleaner imports
+ * - Vitest integration for testing with coverage
+ *
+ * Aliases match the TypeScript paths defined in tsconfig.json.
+ * Obsidian-specific bundling is handled via CommonJS output.
  */
-import { defineConfig } from 'vite';
+import * as path from 'path'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  /**
-   * Build configuration to output a CommonJS library compatible with Obsidian.
-   */
-  build: {
-    /**
-     * Library mode config: defines the plugin entry point and output format.
-     */
-    lib: {
-      // Path to the plugin's main TypeScript entry file.
-      entry: 'src/main.ts',
-      // Format must be 'cjs' (CommonJS) because Obsidian does not support ESM.
-      formats: ['cjs'],
-      // Output file will always be named main.js.
-      fileName: () => 'main.js',
-    },
-    // Output directory for compiled plugin files.
-    outDir: 'dist',
-    // Clean the output directory before building.
-    emptyOutDir: true,
-    /**
-     * Rollup options for externalizing Obsidian dependency.
-     */
-    rollupOptions: {
-      // Prevent 'obsidian' from being bundled — it will be provided by the app at runtime.
-      external: ['obsidian'],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+      '@components': path.resolve(__dirname, 'src/components'),
+      '@utils': path.resolve(__dirname, 'src/utils'),
+      '@commands': path.resolve(__dirname, 'src/commands'),
+      '@services': path.resolve(__dirname, 'src/services'),
+      '@config': path.resolve(__dirname, 'src/config'),
+      '@adapters': path.resolve(__dirname, 'src/adapters'),
+      '@types': path.resolve(__dirname, 'src/types'),
     },
   },
-});
+
+  // ---- Build config for Obsidian plugin ----
+  build: {
+    outDir: 'dist',              // Output directory for the built plugin
+    target: 'esnext',            // Modern JS target (since Obsidian uses modern Electron)
+    minify: false,               // Disable minification for easier debugging
+    sourcemap: true,             // Enable source maps for debugging
+
+    lib: {
+      entry: './src/main.ts',    // Entry point of the plugin
+      formats: ['cjs'],          // Obsidian requires CommonJS format
+    },
+
+    rollupOptions: {
+      external: ['obsidian'],    // Mark 'obsidian' as external to avoid bundling
+      output: {
+        entryFileNames: 'main.js', // Ensure output file is named `main.js` (required by Obsidian)
+      },
+    },
+  },
+
+  // ---- Test config for Vitest ----
+  test: {
+    include: ['tests/**/*.test.ts'], // Look for test files under tests/ with .test.ts suffix
+    globals: false,                  // Allow using `describe`, `it`, etc. without importing
+    environment: 'happy-dom',        // Simulates DOM environment (needed for Obsidian plugin APIs)
+    coverage: {
+      provider: "v8",                 // or 'c8' if you prefer c8 under the hood
+      reporter: ['text', 'html'],     // 'text' for CLI, 'html' for browsable report
+      reportsDirectory: "./coverage"  // optional: customize output location
+    }
+  },
+})
