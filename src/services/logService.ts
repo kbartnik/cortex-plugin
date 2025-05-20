@@ -1,29 +1,29 @@
 /**
  * Service module responsible for managing developer log notes.
- * Includes functionality for creating or opening today's log entry.
+ * Provides logic to create or open today's log entry and related helpers.
  */
 
-import {App, TFile} from "obsidian";
 import {getTodayLogPath} from "@utils/date";
+import type { AppAdapter } from "@/adapters/app/interface";
 
 /**
  * Opens the developer log note for today, creating it if it doesn't already exist.
  *
- * @param app - The Obsidian App instance, used to access the vault and workspace.
+ * @param app - The application adapter that provides access to vault, workspace, and notification functionality.
  * @returns A promise that resolves once the note is opened or created and opened.
  */
-export async function createOrOpenTodayLog(app: App) : Promise<void> {
+export async function createOrOpenTodayLog(app: AppAdapter): Promise<void> {
     const path = getTodayLogPath();
-    let file = await app.vault.create(path, '') as TFile | null;
 
-    // If the file does not exist, create it
-    if (!file) {
-        file = await app.vault.create(path, '');
+    try {
+        const file = await ensureLogFile(path, app.vault);
+        await app.workspace.openFile(file);
+    } catch (error) {
+        app.notice.notify(`Failed to create log: ${(error as Error).message}`);
     }
+}
 
-    // Open the file using the active workspace leaf
-    const leaf = app.workspace.getLeaf();
-    await leaf.openFile(file);
-
-    //
+async function ensureLogFile(path: string, vault: AppAdapter["vault"]): Promise<TFile> {
+    const file = vault.getFile(path);
+    return file ?? await vault.createFile(path, '');
 }

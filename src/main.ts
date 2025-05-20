@@ -3,7 +3,6 @@
  * Obsidian plugin that provides developer-focused executive function tools.
  * This is the entry point loaded by Obsidian.
  */
-import { Plugin } from 'obsidian';
 
 /**
  * Main plugin class registered by Obsidian.
