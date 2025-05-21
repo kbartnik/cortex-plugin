@@ -1,7 +1,9 @@
 /****
  * Cortex Plugin
  * Obsidian plugin that provides developer-focused executive function tools.
- * This is the entry point loaded by Obsidian.
+ *
+ * @file This is the entry point loaded by Obsidian. It defines the main plugin class,
+ *       which registers lifecycle hooks and initializes plugin behavior on load.
  */
 
 /**

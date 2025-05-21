@@ -1,81 +1,98 @@
 /**
- * Unit tests for createOrOpenTodayLog.
+ * Unit tests for the `createOrOpenTodayLog` service.
  *
- * Validates that:
- * - A new log file is created if one doesn't exist
- * - An existing log file is opened without duplication
+ * These tests verify the plugin's behavior when:
+ * - Creating a new log file
+ * - Opening an existing one
+ * - Handling failures during file creation
+ *
+ * The test suite mocks the AppAdapter, vault behavior, and notification system
+ * to ensure the logic is isolated and deterministic.
  */
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { createOrOpenTodayLog } from '@/services/logService';
+import type { AppAdapter } from '@/adapters/app/interface';
+import type { VaultFile } from '@/adapters/vault/interface';
 
-
+// Mocks the notify adapter module
 vi.mock("@/utils/notify", () => ({
     notify: vi.fn(),
 }));
 
-import {describe, it, expect, beforeEach, vi} from 'vitest';
-import {createOrOpenTodayLog} from '@/services/logService';
-import {App} from "../../src/types/obsidian";
-import {getMockApp, resetMockVault} from '../mocks/app';
-import {getTodayLogPath} from '@utils/date';
-import {notify} from "@/utils/notify";
+// Mocks the getTodayLogPath function
+vi.mock("@/utils/date", () => ({
+    getTodayLogPath: vi.fn(() => "daily/dev/2025-05-18.md"),
+}));
+
+import { notify } from "@/utils/notify";
 
 describe('createOrOpenTodayLog', () => {
-    let app: App;
+    let app: AppAdapter;
+    let mockVault: Record<string, VaultFile>;
+    let openedFile: VaultFile | null;
 
+    /**
+     * Sets up the mock AppAdapter with:
+     * - A mock vault that stores and returns VaultFile objects by path
+     * - A mock workspace that tracks the most recently opened file
+     * - A mock notification handler that delegates to a test spy
+     */
     beforeEach(() => {
-        resetMockVault();
-        app = getMockApp();
+        mockVault = {};
+        openedFile = null;
+
+        app = {
+            vault: {
+                getFile: (path) => mockVault[path] || null,
+                createFile: vi.fn().mockImplementation(async (path: string, content: string) => {
+                    const file: VaultFile = { path, name: path.split('/').pop() || path };
+                    mockVault[path] = file;
+                    return file;
+                }),
+            },
+            workspace: {
+                openFile: vi.fn().mockImplementation(async (file) => {
+                    openedFile = file;
+                }),
+            },
+            notice: {
+                notify: notify,
+            },
+        };
     });
 
     it("creates today's log if it does not exist", async () => {
-        const expectedPath = getTodayLogPath(); // e.g., "daily/dev/2025-05-18.md"
+        const expectedPath = "daily/dev/2025-05-18.md"; // You may want to use a stubbed getTodayLogPath
 
-        // Assert: file doesn't exist yet
-        expect(app.vault.getAbstractFileByPath(expectedPath)).toBeNull();
+        expect(app.vault.getFile(expectedPath)).toBeNull();
 
-        // Act
         await createOrOpenTodayLog(app);
 
-        // Assert: file was created
-        const newFile = app.vault.getAbstractFileByPath(expectedPath);
+        const newFile = app.vault.getFile(expectedPath);
         expect(newFile).not.toBeNull();
         expect(newFile?.path).toBe(expectedPath);
 
-        // Assert: file was opened
-        const opened = (app.workspace.getLeaf() as any).openedFile;
-        expect(opened?.path).toBe(expectedPath);
+        expect(openedFile?.path).toBe(expectedPath);
     });
 
     it("opens today's log if it already exists", async () => {
-        const expectedPath = getTodayLogPath();
+        const expectedPath = "daily/dev/2025-05-18.md";
+        const existingFile: VaultFile = { path: expectedPath, name: "2025-05-18.md" };
+        mockVault[expectedPath] = existingFile;
 
-        // Arrange manually create the file in the mock vault
-        const existingFile = await app.vault.create(expectedPath, "# Existing Log\nSome content");
-
-        // Sanity check: file is created in the new vault
-        expect(app.vault.getAbstractFileByPath(expectedPath)).toBe(existingFile);
-
-        // Act
         await createOrOpenTodayLog(app);
 
-        // Assert: file was not recreated
-        const retrievedFile = app.vault.getAbstractFileByPath(expectedPath);
-        expect(retrievedFile).toBe(existingFile);
-
-        // Assert: the existing file was opened
-        const leaf = app.workspace.getLeaf() as any;
-        expect(leaf.openedFile).toBe(existingFile);
+        expect(app.vault.getFile(expectedPath)).toBe(existingFile);
+        expect(openedFile).toBe(existingFile);
     });
 
     it("shows a notification if log creation fails", async () => {
-        // Arrange: override create method to throw
-        app.vault.create = vi.fn().mockRejectedValue(new Error("Simulated failure"));
+        const expectedPath = "daily/dev/2025-05-18.md";
 
-        // Act
+        app.vault.createFile = vi.fn().mockRejectedValue(new Error("Simulated failure"));
+
         await createOrOpenTodayLog(app);
 
-        // Assert
         expect(notify).toHaveBeenCalledWith("Failed to create log: Simulated failure");
     });
-
-
 });

@@ -5,6 +5,7 @@
 
 import {getTodayLogPath} from "@utils/date";
 import type { AppAdapter } from "@/adapters/app/interface";
+import type { VaultFile } from "@/adapters/vault/interface";
 
 /**
  * Opens the developer log note for today, creating it if it doesn't already exist.
@@ -23,7 +24,15 @@ export async function createOrOpenTodayLog(app: AppAdapter): Promise<void> {
     }
 }
 
-async function ensureLogFile(path: string, vault: AppAdapter["vault"]): Promise<TFile> {
+/**
+ * Ensures that a log file exists at the given path. If the file does not exist,
+ * it will be created with empty content.
+ *
+ * @param path - The full path to the log file.
+ * @param vault - The vault adapter used to interact with the file system.
+ * @returns A promise resolving to the existing or newly created VaultFile.
+ */
+async function ensureLogFile(path: string, vault: AppAdapter["vault"]): Promise<VaultFile> {
     const file = vault.getFile(path);
     return file ?? await vault.createFile(path, '');
 }

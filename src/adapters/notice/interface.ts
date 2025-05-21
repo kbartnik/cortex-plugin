@@ -1,6 +1,8 @@
-/**
- * Provides user-facing notifications, abstracting away the underlying implementation (e.g., Obsidian's Notice).
- */
 export interface NoticeAdapter {
+    /**
+     * Sends a notification message to the user.
+     *
+     * @param message - The string content to display in the notification.
+     */
     notify(message: string): void;
 }

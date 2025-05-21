@@ -1,17 +1,18 @@
 /**
  * Provides a mock implementation of the Obsidian Vault for use in unit tests.
- * Supports basic file creation and retrieval operations.
+ * Supports basic file creation and retrieval operations by path.
+ *
+ * This mock enables tests to simulate vault behavior without requiring the actual plugin runtime.
  */
 import { Vault, TFile } from 'obsidian';
 
 const mockFiles: Record<string, TFile> = {};
 
 /**
- * Creates a mock Vault instance for testing.
- * Allows optional method overrides via the `overrides` parameter.
+ * Creates a mock Vault instance with support for `getAbstractFileByPath` and `create`.
  *
- * @param overrides - Partial Vault methods to override default mock behavior
- * @returns A Vault-like object supporting file creation and lookup
+ * @param overrides - Optional overrides for specific Vault methods.
+ * @returns A Vault-like object with default methods for test use.
  */
 export function createMockVault(overrides: Partial<Vault> = {}): Vault {
     return {
@@ -36,7 +37,7 @@ export function createMockVault(overrides: Partial<Vault> = {}): Vault {
 }
 
 /**
- * Resets the internal mock file registry to ensure test isolation.
+ * Clears the mock file registry to reset state between test runs.
  */
 export function resetMockVault() {
     for (const key in mockFiles) {

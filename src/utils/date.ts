@@ -12,12 +12,16 @@ export function getTodayLogPath(): string {
 }
 
 /**
- * Formats a log file path from a given date, base directory, and file extension.
+ * Formats a log file path string using a given date, base directory, and file extension.
  *
- * @param date - The date to use for the log filename
- * @param baseDir - The base directory for logs (e.g. "daily/dev")
- * @param extension - The file extension to use (e.g. "md")
- * @returns The formatted relative path to the log file
+ * This function is used to generate paths for log files that follow a consistent
+ * naming convention, such as "daily/dev/YYYY-MM-DD.md". It can be reused with
+ * different directories and formats to support alternative logging schemes.
+ *
+ * @param date - The date to use for the log filename.
+ * @param baseDir - The base directory for logs (e.g. "daily/dev").
+ * @param extension - The file extension to use (e.g. "md").
+ * @returns The formatted relative path to the log file.
  */
 function formatLogPath(date: Date, baseDir: string, extension: string): string {
     const year = date.getFullYear();
